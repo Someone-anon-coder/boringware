@@ -63,6 +63,24 @@ features = [
 ]
 limits = "Legacy .xls, .doc and .ppt files and password-protected files are listed as skipped and left alone."
 
+# How it works: the steps from the product site's own "How it works" section. `image` is optional;
+# every step with an image is shown as a captioned screenshot below the steps.
+[[products.steps]]
+title = "Scan (free)"
+text = "Point it at a folder. Get a report of every external link in every file: where it lives, what it points to, and whether the target exists."
+image = "/img/link-migrator-scan.png"
+image_alt = "Link Migrator's Scan tab: 48 files scanned, 147 links found, each listed with its file, kind, target, status and whether it can be rewritten."
+
+[[products.steps]]
+title = "Map"
+text = "Enter one table: old location to new location. UNC paths, mapped drives and SharePoint addresses all work. Preview the exact change count per rule and per file."
+image = "/img/link-migrator-map.png"
+image_alt = "The Map tab: six rules from old to new prefixes, such as \\\\oldsrv\\finance to \\\\newsrv\\fin, and a preview of 120 planned changes listed per rule and per file."
+
+[[products.steps]]
+title = "Apply"
+text = "Corrected copies are written to a separate folder and each one is verified. Swap them in when you are happy."
+
 [[products.problems]]
 id = "cant-update-links"
 question = "Excel says \"We can't update some of the links in your workbook right now\""
@@ -156,6 +174,30 @@ features = [
   "Accepts ordinary business PDFs, including ones with links, bookmarks or forms. The original PDF is never changed.",
 ]
 limits = "It reads the text layer of a PDF. Scanned pages (pictures of text) are not supported yet, and the app says so when it meets one."
+
+[[products.steps]]
+title = "Choose your PDF"
+text = "Drag it in. Documents with links, bookmarks or forms are fine."
+image = "/img/splitmark-import.png"
+image_alt = "Splitmark's Import step with multi_page_invoices.pdf chosen and ready: 11 pages."
+
+[[products.steps]]
+title = "Show it what to read"
+text = "Type the label before a value (for example \"Invoice No:\"), give a pattern, or draw a box around the number on a sample page. You see the value it finds, live."
+image = "/img/splitmark-fields.png"
+image_alt = "Splitmark's Fields step: a new document starts when the invoice value changes, the invoice number is read after \"Invoice No:\" and the customer after \"Customer:\", and files are named {invoice}_{customer}. Found 4 documents in 11 pages."
+
+[[products.steps]]
+title = "Check the result"
+text = "A list shows every file with its pages, a thumbnail and its name. Problems such as a missing number or two files with the same name are marked in red. Merge, split, skip or rename with a click."
+image = "/img/splitmark-review-wide.png"
+image_alt = "Splitmark's Review step: documents found in one PDF, each with its pages, a thumbnail, its new file name such as INV-10001_Birch Foods 2, the values read and an OK status."
+
+[[products.steps]]
+title = "Save"
+text = "One PDF per document goes into a folder you choose, with a CSV log and a manifest of what was written."
+image = "/img/splitmark-export.png"
+image_alt = "Splitmark's Export step after Split and save: 4 files saved, 0 not saved."
 
 [[products.problems]]
 id = "split-pdf-into-invoices"

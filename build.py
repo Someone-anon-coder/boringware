@@ -385,13 +385,32 @@ def problem_section(p: dict, pr: dict, articles_by_slug: dict[str, Article]) -> 
         more = f'<p class="more"><a href="{a.path}">Read the full guide: {esc(a.title)}</a></p>'
     return f"""<section class="problem" aria-labelledby="{pr["id"]}">
 <h3 id="{pr["id"]}">{esc(pr["question"])}</h3>
-<dl class="steps">
+<dl class="stack">
   <dt>Why it happens</dt><dd>{esc(pr["why"])}</dd>
   <dt>Fix it by hand</dt><dd>{esc(pr["manual"])}</dd>
   <dt>With {esc(p["name"])}</dt><dd>{esc(pr["tool"])}</dd>
 </dl>
 {more}
 </section>"""
+
+
+def how_it_works(p: dict) -> str:
+    """The product site's steps as numbered cards, then every step screenshot, large and captioned."""
+    steps = p.get("steps", [])
+    if not steps:
+        return ""
+    cards = "".join(
+        f'<li><span class="num" aria-hidden="true">{i}</span><h3>{esc(s["title"])}</h3><p>{esc(s["text"])}</p></li>'
+        for i, s in enumerate(steps, 1)
+    )
+    shots = "".join(
+        f'<figure><a class="frame" href="{s["image"]}"><img src="{s["image"]}" alt="{esc(s["image_alt"])}" loading="lazy" width="1366" height="768"></a>'
+        f'<figcaption><strong>Step {i}: {esc(s["title"])}</strong></figcaption></figure>'
+        for i, s in enumerate(steps, 1)
+        if s.get("image")
+    )
+    gallery = f'<div class="gallery">{shots}</div>' if shots else ""
+    return f'<h2 id="how">How it works</h2>\n<ol class="how">{cards}</ol>\n{gallery}'
 
 
 def page_product(p: dict, articles: list[Article]) -> str:
@@ -405,9 +424,6 @@ def page_product(p: dict, articles: list[Article]) -> str:
     faq_html = "".join(f"<div><dt>{esc(f['q'])}</dt><dd>{esc(f['a'])}</dd></div>" for f in faq)
     guides = f'<h2 id="articles">Articles</h2>\n{post_list(related, show_tag=False)}' if related else ""
     trademark = f'<p class="fine">{esc(p["trademark"])}</p>' if p.get("trademark") else ""
-    sections = [("problems", "Common problems")] if problems else []
-    sections += [("features", "What it does")] + ([("faq", "Questions")] if faq else []) + ([("articles", "Articles")] if related else [])
-    on_page = "".join(f'<li><a href="#{i}">{label}</a></li>' for i, label in sections)
     get_links = [f'<a href="{esc(p["download"])}">Download</a>']
     if p.get("store"):
         get_links.append(f'<a href="{esc(p["store"])}">Microsoft Store</a>')
@@ -415,42 +431,38 @@ def page_product(p: dict, articles: list[Article]) -> str:
     body = f"""{crumbs}
 <section class="hero">
   <div>
-    <p class="label product-label"><img class="app-icon" src="{p["icon"]}" alt="" width="28" height="28">{esc(p["full_name"])}</p>
+    <p class="label">{esc(p["full_name"])}</p>
     <h1>{esc(p["seo_title"])}</h1>
     <p class="lead">{esc(" ".join(p["problem"].split()))}</p>
     <p class="actions">{try_button(p)}<a class="button secondary" href="{esc(p["download"])}">Download</a></p>
   </div>
-  <figure class="frame"><img src="{p["image"]}" alt="{esc(p["image_alt"])}" width="1280" height="800"></figure>
+  <div class="brand-panel"><img src="{p["icon"]}" alt="{esc(p["name"])} logo" width="168" height="168"><span class="bp-name">{esc(p["name"])}</span><span class="bp-by">by {esc(SITE["name"])}</span></div>
 </section>
 
-<div class="with-aside aside-first">
-<div class="main-col">
-{f'<h2 id="problems">Common problems and how to fix them</h2>{problem_html}' if problems else ""}
+<section class="facts-bar" aria-label="At a glance">
+  <dl>
+    <div><dt>Price</dt><dd>{esc(p["price_text"])}</dd></div>
+    <div><dt>Try it</dt><dd>{esc(p["trial"])}.</dd></div>
+    <div><dt>Runs on</dt><dd>{esc(p["platform"])}</dd></div>
+    <div><dt>Made for</dt><dd>{esc(p["audience"])}</dd></div>
+  </dl>
+  <div class="facts-cta">{try_button(p, "button block")}<p class="get">{" &middot; ".join(get_links)}</p></div>
+</section>
 
+{how_it_works(p)}
+
+{f'<h2 id="problems">Common problems and how to fix them</h2><div class="problem-grid">{problem_html}</div>' if problems else ""}
+
+<div class="split">
+<section>
 <h2 id="features">What {esc(p["name"])} does</h2>
 <ul class="ticks">{features}</ul>
 <p class="note"><strong>Limits.</strong> {esc(p["limits"])}</p>
-
-{f'<h2 id="faq">Questions</h2><dl class="faq">{faq_html}</dl>' if faq else ""}
+</section>
+{f'<section><h2 id="faq">Questions</h2><dl class="faq">{faq_html}</dl></section>' if faq else ""}
+</div>
 {guides}
 {trademark}
-</div>
-<aside class="side">
-  <div class="card sticky">
-    <p class="label">At a glance</p>
-    <dl class="facts">
-      <dt>Price</dt><dd>{esc(p["price_text"])}</dd>
-      <dt>Try it</dt><dd>{esc(p["trial"])}.</dd>
-      <dt>Runs on</dt><dd>{esc(p["platform"])}</dd>
-      <dt>Made for</dt><dd>{esc(p["audience"])}</dd>
-    </dl>
-    {try_button(p, "button block")}
-    <p class="get">{" &middot; ".join(get_links)}</p>
-    <p class="label">On this page</p>
-    <ul class="side-nav">{on_page}</ul>
-  </div>
-</aside>
-</div>
 """
     app = {
         "@type": "SoftwareApplication",
@@ -695,7 +707,7 @@ def page_markdown(src: Path) -> tuple[str, str]:
         title=meta["title"],
         description=meta["description"],
         body=f"""{crumbs}
-<div class="page narrow">
+<div class="page">
 <header class="page-head">{icon}<div><h1>{esc(meta["title"])}</h1>{lead}{stamp}</div></header>
 {tag_product_links(content)}
 </div>""",

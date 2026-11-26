@@ -13,6 +13,9 @@ updated = 2026-11-26
 <li><strong>Your files stay on your PC</strong>The apps never upload your files. Their only connection is the licence check.</li>
 </ul>
 
+<div class="cols" markdown="1">
+<div markdown="1">
+
 ## What this site records
 
 This policy covers this website (boringware.pages.dev).
@@ -32,6 +35,9 @@ The site is hosted by Cloudflare Pages. Like any web host, Cloudflare processes 
 to deliver pages and protect against abuse. See
 [Cloudflare's privacy policy](https://www.cloudflare.com/privacypolicy/).
 
+</div>
+<div markdown="1">
+
 ## The apps
 
 Each app has its own privacy policy on its own website, covering the app, its licence check and
@@ -43,3 +49,6 @@ connection each app makes is to activate and occasionally re-check its licence.
 ## Contact
 
 Questions: [boringware@outlook.com](mailto:boringware@outlook.com).
+
+</div>
+</div>
