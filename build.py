@@ -261,9 +261,11 @@ def layout(
 {body}
 </main>
 <footer class="site">
-  <nav aria-label="Footer"><a href="/#tools">Tools</a><a href="/blog/">Articles</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/feed.xml">Feed</a><a href="mailto:{esc(SITE["email"])}">{esc(SITE["email"])}</a></nav>
-  <p>&copy; {dt.date.today().year} {esc(SITE["author"])} &middot; {esc(SITE["name"])}. {esc(SITE["tagline"])}.</p>
-  <p>Microsoft, Windows, Excel, Word, PowerPoint and SharePoint are trademarks of the Microsoft group of companies. BoringWare is not affiliated with Microsoft or Adobe.</p>
+  <div class="foot-row">
+    <p>&copy; {dt.date.today().year} {esc(SITE["name"])} &middot; {esc(SITE["author"])}</p>
+    <nav aria-label="Footer"><a href="/#tools">Tools</a><a href="/blog/">Articles</a><a href="/about/">About</a><a href="/privacy/">Privacy</a><a href="/feed.xml">Feed</a><a href="mailto:{esc(SITE["email"])}">{esc(SITE["email"])}</a></nav>
+  </div>
+  <p class="fine">Microsoft, Windows, Excel, Word, PowerPoint and SharePoint are trademarks of the Microsoft group of companies. BoringWare is not affiliated with Microsoft or Adobe.</p>
 </footer>
 </div>"""
     return "\n".join(x for x in head if x) + "\n" + shell + "\n</body>\n</html>\n"
@@ -310,17 +312,28 @@ def problem_link(p: dict, pr: dict) -> str:
     return f'<a href="/{p["key"]}/#{pr["id"]}">{esc(pr["question"])}</a>'
 
 
-def tool_row(p: dict) -> str:
-    problems = "".join(f"<li>{problem_link(p, pr)}</li>" for pr in p.get("problems", []))
-    solves = f'<p class="label">Problems it solves</p><ul class="qlist">{problems}</ul>' if problems else ""
-    return f"""<article class="tool-row">
-  <a class="tool-shot" href="/{p["key"]}/"><img src="{p["image"]}" alt="{esc(p["image_alt"])}" loading="lazy" width="1280" height="800"></a>
-  <div>
+def question_list(p: dict) -> str:
+    """The product's problems as a plain list of links to their sections on the product page."""
+    items = "".join(f"<li>{problem_link(p, pr)}</li>" for pr in p.get("problems", []))
+    return f'<ul class="qlist">{items}</ul>' if items else ""
+
+
+def try_button(p: dict, cls: str = "button") -> str:
+    """The one call to action that leads to a product's own site. Same label everywhere."""
+    return f'<a class="{cls}" href="{esc(with_ref(p["site"]))}">Try {esc(p["name"])} free</a>'
+
+
+def tool_card(p: dict) -> str:
+    qs = question_list(p)
+    solves = f'<p class="label">Problems it solves</p>{qs}' if qs else ""
+    return f"""<article class="tool-card">
+  <a class="frame" href="/{p["key"]}/" tabindex="-1"><img src="{p["image"]}" alt="{esc(p["image_alt"])}" loading="lazy" width="1280" height="800"></a>
+  <div class="tool-body">
     <h3><a href="/{p["key"]}/">{esc(p["name"])}</a></h3>
     <p>{esc(p["one_liner"])}</p>
-    <p class="meta">{esc(p["price_text"])}</p>
+    <p class="note">{esc(p["price_text"])}</p>
     {solves}
-    <p><a class="button" href="/{p["key"]}/">About {esc(p["name"])}</a><a class="button secondary" href="{esc(with_ref(p["site"]))}">Website</a></p>
+    <p class="actions"><a class="button" href="/{p["key"]}/">About {esc(p["name"])}</a>{try_button(p, "button secondary")}</p>
   </div>
 </article>"""
 
@@ -329,27 +342,27 @@ def tool_row(p: dict) -> str:
 
 
 def page_home(articles: list[Article]) -> str:
-    rows = "\n".join(tool_row(p) for p in PRODUCTS.values())
+    cards = "\n".join(tool_card(p) for p in PRODUCTS.values())
     latest = post_list(articles[:6])
     latest_section = (
-        f'<section><h2 id="latest">Latest articles</h2>\n{latest}\n<p><a href="/blog/">All articles</a></p></section>' if latest else ""
+        f'<section class="block"><h2 id="latest">Latest articles</h2>\n{latest}\n<p><a href="/blog/">All articles</a></p></section>' if latest else ""
     )
-    body = f"""<section class="hero">
-  <div>
-    <h1>{esc(SITE["tagline"])}.</h1>
-    <p class="lead">Fix every broken Excel, Word and PowerPoint link after a file server move. Split one combined PDF into separate invoices, named from their own text. Each tool does one tedious job properly, on your own PC.</p>
-    <p><a class="button" href="#tools">See the tools</a><a class="button secondary" href="/blog/">Read the articles</a></p>
-  </div>
-  <ul class="promises">
-    <li><strong>Your files stay on your PC.</strong> No uploads. The only internet connection is the licence check.</li>
-    <li><strong>Originals are left alone.</strong> Results are written as new files; nothing is replaced without asking.</li>
-    <li><strong>Try free, pay once.</strong> Every tool can be tried on your own files before a one-time licence.</li>
-  </ul>
+    body = f"""<section class="intro">
+  <h1>{esc(SITE["tagline"])}</h1>
+  <p class="lead">Each tool does one tedious job properly, on your own PC: fixing broken Office links after a file server move, or splitting a combined PDF into separate, named files.</p>
 </section>
 
-<section>
-<h2 id="tools">Tools, and the problems they solve</h2>
-{rows}
+<ul class="promises">
+  <li><strong>Your files stay on your PC</strong>No uploads. The only internet connection is the licence check.</li>
+  <li><strong>Originals are left alone</strong>Results are written as new files. Nothing is replaced without asking.</li>
+  <li><strong>Try free, pay once</strong>Try every tool on your own files before buying a one-time licence.</li>
+</ul>
+
+<section class="block">
+<h2 id="tools">Tools</h2>
+<div class="tool-grid">
+{cards}
+</div>
 </section>
 
 {latest_section}
@@ -369,12 +382,14 @@ def problem_section(p: dict, pr: dict, articles_by_slug: dict[str, Article]) -> 
     more = ""
     a = articles_by_slug.get(pr.get("article", ""))
     if a:
-        more = f'<p><a href="{a.path}">Read the full guide: {esc(a.title)}</a></p>'
+        more = f'<p class="more"><a href="{a.path}">Read the full guide: {esc(a.title)}</a></p>'
     return f"""<section class="problem" aria-labelledby="{pr["id"]}">
 <h3 id="{pr["id"]}">{esc(pr["question"])}</h3>
-<p><strong>Why it happens.</strong> {esc(pr["why"])}</p>
-<p><strong>How to fix it by hand.</strong> {esc(pr["manual"])}</p>
-<p><strong>How {esc(p["name"])} does it.</strong> {esc(pr["tool"])}</p>
+<dl class="steps">
+  <dt>Why it happens</dt><dd>{esc(pr["why"])}</dd>
+  <dt>Fix it by hand</dt><dd>{esc(pr["manual"])}</dd>
+  <dt>With {esc(p["name"])}</dt><dd>{esc(pr["tool"])}</dd>
+</dl>
 {more}
 </section>"""
 
@@ -385,38 +400,36 @@ def page_product(p: dict, articles: list[Article]) -> str:
     problems = p.get("problems", [])
     faq = p.get("faq", [])
     crumbs, crumb_data = breadcrumbs([("Home", "/"), ("Tools", "/#tools"), (p["name"], f"/{p['key']}/")])
-    store_btn = f'<a class="button secondary" href="{esc(p["store"])}">Microsoft Store</a>' if p.get("store") else ""
     features = "".join(f"<li>{esc(f)}</li>" for f in p["features"])
     problem_html = "\n".join(problem_section(p, pr, by_slug) for pr in problems)
-    faq_html = "".join(f"<dt>{esc(f['q'])}</dt><dd>{esc(f['a'])}</dd>" for f in faq)
+    faq_html = "".join(f"<div><dt>{esc(f['q'])}</dt><dd>{esc(f['a'])}</dd></div>" for f in faq)
     guides = f'<h2 id="articles">Articles</h2>\n{post_list(related, show_tag=False)}' if related else ""
     trademark = f'<p class="fine">{esc(p["trademark"])}</p>' if p.get("trademark") else ""
-    on_page = "".join(f'<li><a href="#{pr["id"]}">{esc(pr["question"])}</a></li>' for pr in problems)
-    on_page += '<li><a href="#features">What it does</a></li>' + ('<li><a href="#faq">Questions</a></li>' if faq else "")
-    on_page += '<li><a href="#articles">Articles</a></li>' if related else ""
+    sections = [("problems", "Common problems")] if problems else []
+    sections += [("features", "What it does")] + ([("faq", "Questions")] if faq else []) + ([("articles", "Articles")] if related else [])
+    on_page = "".join(f'<li><a href="#{i}">{label}</a></li>' for i, label in sections)
+    get_links = [f'<a href="{esc(p["download"])}">Download</a>']
+    if p.get("store"):
+        get_links.append(f'<a href="{esc(p["store"])}">Microsoft Store</a>')
+    get_links.append(f'<a href="{esc(with_ref(p["help"]))}">Help and FAQ</a>')
     body = f"""{crumbs}
 <section class="hero">
   <div>
-    <p class="eyebrow">{esc(p["full_name"])}</p>
+    <p class="label">{esc(p["full_name"])}</p>
     <h1>{esc(p["seo_title"])}</h1>
-    <p class="lead">{esc(p["audience"])}</p>
-    <p><a class="button" href="{esc(with_ref(p["site"]))}">Visit the {esc(p["name"])} website</a><a class="button secondary" href="{esc(p["download"])}">Download</a>{store_btn}</p>
-    <p class="note">{esc(p["trial"])}. {esc(p["platform"])}</p>
+    <p class="lead">{esc(" ".join(p["problem"].split()))}</p>
+    <p class="actions">{try_button(p)}<a class="button secondary" href="{esc(p["download"])}">Download</a></p>
   </div>
-  <figure class="shot"><img src="{p["image"]}" alt="{esc(p["image_alt"])}" width="1280" height="800"></figure>
+  <figure class="frame"><img src="{p["image"]}" alt="{esc(p["image_alt"])}" width="1280" height="800"></figure>
 </section>
 
-<div class="with-aside">
+<div class="with-aside aside-first">
 <div class="main-col">
-<h2 id="problem">The problem</h2>
-<p>{esc(" ".join(p["problem"].split()))}</p>
-
-<h2 id="problems">Common problems: why they happen and how to fix them</h2>
-{problem_html}
+{f'<h2 id="problems">Common problems and how to fix them</h2>{problem_html}' if problems else ""}
 
 <h2 id="features">What {esc(p["name"])} does</h2>
 <ul class="ticks">{features}</ul>
-<p class="note">{esc(p["limits"])}</p>
+<p class="note"><strong>Limits.</strong> {esc(p["limits"])}</p>
 
 {f'<h2 id="faq">Questions</h2><dl class="faq">{faq_html}</dl>' if faq else ""}
 {guides}
@@ -424,16 +437,16 @@ def page_product(p: dict, articles: list[Article]) -> str:
 </div>
 <aside class="side">
   <div class="card sticky">
-    <h2 class="side-h">At a glance</h2>
+    <p class="label">At a glance</p>
     <dl class="facts">
       <dt>Price</dt><dd>{esc(p["price_text"])}</dd>
-      <dt>Try it</dt><dd>{esc(p["trial"])}</dd>
+      <dt>Try it</dt><dd>{esc(p["trial"])}.</dd>
       <dt>Runs on</dt><dd>{esc(p["platform"])}</dd>
-      <dt>Your files</dt><dd>Processed on your PC, never uploaded.</dd>
-      <dt>Help</dt><dd><a href="{esc(with_ref(p["help"]))}">Help and FAQ</a></dd>
+      <dt>Made for</dt><dd>{esc(p["audience"])}</dd>
     </dl>
-    <p><a class="button block" href="{esc(with_ref(p["site"]))}">Try {esc(p["name"])} free</a></p>
-    <h2 class="side-h">On this page</h2>
+    {try_button(p, "button block")}
+    <p class="get">{" &middot; ".join(get_links)}</p>
+    <p class="label">On this page</p>
     <ul class="side-nav">{on_page}</ul>
   </div>
 </aside>
@@ -485,7 +498,7 @@ def toolbox(a: Article) -> str:
             extra = "<ul>" + "".join(f"<li>{esc(f)}</li>" for f in p["features"][:3]) + "</ul>"
         parts.append(
             f'<p><strong>{esc(p["name"])}</strong>: {esc(p["one_liner"])} {esc(p["trial"])}.</p>{extra}'
-            f'<p><a class="button" href="{esc(with_ref(p["site"]))}">Try {esc(p["name"])} free</a></p>'
+            f'<p>{try_button(p)}</p>'
         )
     heading = "A tool that does this" if len(keys) == 1 else "The tools"
     return f"""<aside class="toolbox" aria-labelledby="toolbox-h">
@@ -532,7 +545,7 @@ def page_article(a: Article, articles: list[Article]) -> str:
             f'{esc(p["one_liner"])}</p></div>'
         )
     body = f"""{crumbs}
-<div class="with-aside toc-first">
+<div class="with-aside aside-first">
 <article class="main-col">
 {draft_banner}
 <h1>{esc(a.title)}</h1>
@@ -584,23 +597,24 @@ def page_blog(articles: list[Article]) -> str:
     brand = [a for a in articles if a.product == BRAND_KEY]
     if brand:
         sections.append(f'<h2 id="boringware">About {esc(SITE["name"])}</h2>{post_list(brand, show_tag=False)}')
-    if not sections:
-        sections.append(
-            "<p>Full step-by-step guides are on the way. Until then, the quick answers below explain why each problem happens and how to fix it by hand.</p>"
-        )
     answers = "".join(
-        f'<div><h3>{esc(p["name"])}</h3><ul class="qlist">'
-        + "".join(f"<li>{problem_link(p, pr)}</li>" for pr in p.get("problems", []))
-        + "</ul></div>"
-        for p in PRODUCTS.values()
+        f'<div class="card"><p class="label">{esc(p["name"])}</p>{question_list(p)}</div>' for p in PRODUCTS.values()
     )
+    if sections:
+        answers_block = f'<h2 id="quick-answers">Quick answers</h2><div class="grid">{answers}</div>'
+    else:
+        answers_block = (
+            '<p>Full step-by-step guides are on the way. Until then, these quick answers explain why each problem happens and how to fix it by hand.</p>'
+            f'<div class="grid">{answers}</div>'
+        )
     crumbs, crumb_data = breadcrumbs([("Home", "/"), ("Articles", "/blog/")])
     body = f"""{crumbs}
-<h1>Articles: how to fix tedious office jobs</h1>
-<p class="lead">Why broken Excel, Word and PowerPoint links happen after a file server move, how to split a combined PDF into separate named files, and similar chores. Each guide shows the manual way first.</p>
+<div class="narrow">
+<h1>Articles</h1>
+<p class="lead">How to fix broken Excel, Word and PowerPoint links after a file server move, split a combined PDF into separate named files, and similar chores. Each guide shows the manual way first.</p>
+</div>
 {"".join(sections)}
-<h2 id="quick-answers">Quick answers</h2>
-<div class="grid">{answers}</div>
+{answers_block}
 <p class="note">New articles also appear in the <a href="/feed.xml">feed</a>.</p>
 """
     return layout(
