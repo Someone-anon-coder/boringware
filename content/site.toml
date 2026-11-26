@@ -65,35 +65,35 @@ limits = "Legacy .xls, .doc and .ppt files and password-protected files are list
 id = "cant-update-links"
 question = "Excel says \"We can't update some of the links in your workbook right now\""
 why = "An Excel workbook link stores the full path of the source workbook, such as \\\\oldsrv\\finance\\Rates.xlsx or S:\\Finance\\Rates.xlsx. When that server is retired or the share moves, the stored path points at nothing, so Excel can't refresh the values and shows the warning every time the file opens."
-manual = "Open the workbook, go to Data > Edit Links (called Workbook Links in Microsoft 365), select each link and use Change Source to pick the file in its new location. Repeat for every workbook that links to the moved files. Links used inside defined names and chart series follow automatically once the workbook link itself is changed."
+manual = "Open the workbook and go to Data > Queries and Connections > Workbook Links (older versions of Excel have Data > Edit Links in the same place). Next to the old source, choose More Commands (...) > Change source and pick the file in its new location. Changing the source repoints every formula, defined name and chart series that uses it. Repeat for every workbook that links to the moved files."
 tool = "Link Migrator scans a whole folder at once, lists every workbook link with its status, and rewrites old paths to new ones from a single mapping table, writing corrected copies you can check before swapping them in."
 
 [[products.problems]]
 id = "find-hidden-links"
 question = "How do I find every external link in an Excel workbook?"
-why = "Edit Links shows the workbooks a file depends on, but not where each link is used. References can sit in cell formulas, defined names, chart series and pivot table sources, and Microsoft's own documentation says there is no automatic way to find all of them."
-manual = "Press Ctrl+F, choose Options, set Look in to Formulas and Within to Workbook, and search for .xl to find formulas that point at other workbooks. Then check Formulas > Name Manager for names that refer to other files, and each chart's Select Data dialog for series that do."
+why = "The Workbook Links pane (Edit Links in older versions) shows which workbooks a file depends on, but not where each link is used. References can sit in cell formulas, defined names, shapes and text boxes, chart titles and chart series, and Microsoft's own documentation says: \"There is no automatic way to find all workbook links in a workbook.\""
+manual = "Press Ctrl+F, click Options, type .xl in Find what, set Within to Workbook and Look in to Formulas, and click Find All: every formula that points at another workbook is listed. Then check Formulas > Name Manager for names whose Refers To mentions another file, press Ctrl+G > Special > Objects to step through shapes and text boxes, and click each chart title and chart series to read its formula in the formula bar."
 tool = "Link Migrator reads the file format directly and reports every link it finds across a whole folder, including defined names and chart series, with the file, the kind of link, the target and whether that target still exists."
 
 [[products.problems]]
 id = "word-opens-slowly"
 question = "Word documents open slowly after a file server move"
 why = "Many Word documents remember the template they were created from, stored as a full network path. When that server is gone, Word tries to reach it every time the document opens and waits for the network to time out before showing the file."
-manual = "Open the document, go to Developer > Document Template (or File > Options > Add-ins, then Manage: Templates), and replace the attached template path with the new location or with Normal. Save, and repeat for every affected document."
+manual = "Open the document (press Esc if Word shows \"Contacting\" the old server), go to File > Options > Add-ins, set Manage to Templates and click Go. The same dialog is on the Developer tab as Document Template, if that tab is turned on. Click Attach and choose the template in its new location, or Normal.dotm. Save, and repeat for every affected document."
 tool = "Link Migrator lists the attached template of every Word document in a folder and rewrites the old server path to the new one along with every other link, so the documents open at normal speed again."
 
 [[products.problems]]
 id = "hyperlinks-old-server"
 question = "Hyperlinks in Word, Excel and PowerPoint still point to the old server"
 why = "A hyperlink to a file on a share stores that file's path. Moving the share doesn't update hyperlinks, so clicking them opens an error instead of the document."
-manual = "Right-click each hyperlink and choose Edit Link to type the new path. In Word you can press Alt+F9 to show field codes and use Find and Replace to change the old server name inside hyperlink fields, then press Alt+F9 again. Excel and PowerPoint have no equivalent, so their links are fixed one at a time."
+manual = "Right-click each hyperlink and choose Edit Link to type the new path. In Word there is a shortcut: press Alt+F9 to show field codes, use Find and Replace to change the old server name inside the HYPERLINK fields, then press Ctrl+A and F9 to update the fields (skip this and the links keep pointing at the old place) and Alt+F9 to hide the codes. Excel's and PowerPoint's Find and Replace don't search hyperlink addresses, so without a macro their links are fixed one at a time."
 tool = "Link Migrator finds hyperlinks in cells, document bodies, headers, footers, footnotes, slides, layouts and notes, and rewrites them with the same mapping table as every other link."
 
 [[products.problems]]
 id = "sharepoint-migration-links"
 question = "Links broke after moving files from a file share to SharePoint"
 why = "Files on a share are linked by paths like S:\\Finance or \\\\server\\share. After a migration the same files live at web addresses such as https://company.sharepoint.com/sites/Finance/Shared Documents, so every old path is wrong even though the files still exist."
-manual = "Open each file from its new SharePoint location and repoint its links one by one: Change Source for workbook links, Edit Link for hyperlinks, and re-insert linked pictures. It works for a handful of files and becomes days of work across a department."
+manual = "Open each file from its new location and repoint its links one by one: Change source in Excel's Workbook Links pane, Edit Link for each hyperlink, and in Word and PowerPoint, File > Info > Edit Links to Files > Change Source for linked pictures and objects. It works for a handful of files and becomes days of work across a department."
 tool = "Link Migrator maps a drive letter or share path to the SharePoint address in one rule and previews how many links each rule will change before anything is written."
 
 [[products.faq]]
@@ -157,7 +157,7 @@ limits = "It reads the text layer of a PDF. Scanned pages (pictures of text) are
 id = "split-pdf-into-invoices"
 question = "How do I split one PDF into separate invoices?"
 why = "Billing and accounting software often prints a whole run of invoices as one PDF. Splitting every page, or every fixed number of pages, only works when every invoice has the same length. As soon as one invoice runs to two pages, every file after it is cut in the wrong place."
-manual = "In Adobe Acrobat Pro, open Organize Pages and choose Split, which can split by number of pages, by file size or by top-level bookmarks. Free tools split every page or by page ranges you type. For invoices of different lengths, write down where each invoice starts and enter the ranges by hand."
+manual = "In Adobe Acrobat Pro, go to All tools > Organize pages > Split, which splits by number of pages, by file size or by top-level bookmarks. Free tools split every page or by page ranges you type. For invoices of different lengths, write down where each invoice starts and enter the ranges by hand."
 tool = "Splitmark finds where each invoice starts by reading its text, such as the point where the invoice number changes, so invoices of any length are split correctly, and you check every result before saving."
 
 [[products.problems]]
@@ -178,7 +178,7 @@ tool = "Splitmark starts a new file wherever the employee name or number changes
 id = "scanned-pdf-wont-split-by-text"
 question = "Why can't I split a scanned PDF by text?"
 why = "A scanned PDF is a set of pictures of pages. Tools that split or name files by text need a text layer, and a plain scan doesn't have one."
-manual = "Check by pressing Ctrl+F in your PDF reader and searching for a word you can see on the page. If nothing is found, there is no text layer. Run optical character recognition (OCR) first, for example Scan and OCR in Adobe Acrobat, then split the OCR'd file."
+manual = "Check by pressing Ctrl+F in your PDF reader and searching for a word you can see on the page. If nothing is found, there is no text layer. Run optical character recognition (OCR) first, for example All tools > Scan & OCR in Adobe Acrobat, which adds a searchable text layer, then split the recognised file."
 tool = "Splitmark reads text-based PDFs, such as those exported from accounting or payroll software. It doesn't do OCR yet, and it tells you clearly when a PDF has no text to read."
 
 [[products.problems]]
