@@ -18,6 +18,9 @@ customer data, internal plans, real customer files).
   fix breaks down → tool box (automatic) → related articles (automatic). They must be useful
   without the product. Disclosure is built into the tool box.
 - **Tool box level:** `toolbox = "short"` until phase 3 (4 Jan 2027), then `"full"`.
+- **Problems and FAQ** live in `content/site.toml` (`[[products.problems]]`, `[[products.faq]]`). Phrase
+  each `question` the way people search (the exact error text or a "How do I..." question), and give
+  why / by hand / with the tool. When an article covers a problem in depth, set `article = "<slug>"`.
 - **Every link to a product site carries `?ref=`.** build.py adds `?ref=hub` automatically.
 - **Accuracy over volume:** every step in an article must be one you have verified or can cite.
   Say which Excel/Acrobat versions a step applies to when it matters.

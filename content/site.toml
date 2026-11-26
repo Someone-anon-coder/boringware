@@ -1,11 +1,20 @@
 # Everything that describes the hub and the products lives here. build.py reads it.
 # Product facts must match each product's own site; check them there before changing.
+#
+# SEO content per product:
+#   [[products.problems]]  one real problem, phrased the way people search for it. Each renders as a
+#                          section on the product page (anchor #<id>) and is listed on the home page
+#                          and /blog/. Fields: id, question, why, manual, tool, and optionally
+#                          article = "<slug>" once an article covers it in depth.
+#   [[products.faq]]       short questions and answers; also emitted as FAQPage structured data.
+# Every sentence here must be true of the product and of Excel/Acrobat as they are today.
 
 [site]
 name = "BoringWare"
 url = "https://boringware.pages.dev"   # canonical origin, no trailing slash
 tagline = "Small Windows tools for boring office jobs"
-description = "BoringWare makes small Windows tools for boring office jobs: fixing broken links after a file server move, splitting combined PDFs into named files. One-time price, and your files stay on your PC."
+seo_title = "BoringWare: fix broken Excel links, split PDFs into named files"
+description = "Windows tools for tedious office jobs: fix broken Excel, Word and PowerPoint links after a file server move, and split one combined PDF into separate, named invoices. Files stay on your PC."
 author = "Aayush Choudhary"
 email = "boringware@outlook.com"
 lang = "en"
@@ -21,6 +30,8 @@ key = "link-migrator"          # also the hub URL: /link-migrator/  and the `pro
 name = "Link Migrator"
 full_name = "Link Migrator for Excel, Word and PowerPoint"
 one_liner = "Fix every broken Excel, Word and PowerPoint link after a file server or SharePoint move."
+seo_title = "Fix broken Excel, Word and PowerPoint links after a server move"
+seo_description = "Moved a file server or migrated to SharePoint? Find every broken link in Excel, Word and PowerPoint files, see why it broke, and fix them all in one pass. Scanning is free."
 site = "https://office-link-migrator.aayush-c2684.workers.dev/"
 help = "https://office-link-migrator.aayush-c2684.workers.dev/help.html"
 download = "https://github.com/office-link-migrator/office-link-migrator-releases/releases/latest"
@@ -50,11 +61,69 @@ features = [
 ]
 limits = "Legacy .xls, .doc and .ppt files and password-protected files are listed as skipped and left alone."
 
+[[products.problems]]
+id = "cant-update-links"
+question = "Excel says \"We can't update some of the links in your workbook right now\""
+why = "An Excel workbook link stores the full path of the source workbook, such as \\\\oldsrv\\finance\\Rates.xlsx or S:\\Finance\\Rates.xlsx. When that server is retired or the share moves, the stored path points at nothing, so Excel can't refresh the values and shows the warning every time the file opens."
+manual = "Open the workbook, go to Data > Edit Links (called Workbook Links in Microsoft 365), select each link and use Change Source to pick the file in its new location. Repeat for every workbook that links to the moved files. Links used inside defined names and chart series follow automatically once the workbook link itself is changed."
+tool = "Link Migrator scans a whole folder at once, lists every workbook link with its status, and rewrites old paths to new ones from a single mapping table, writing corrected copies you can check before swapping them in."
+
+[[products.problems]]
+id = "find-hidden-links"
+question = "How do I find every external link in an Excel workbook?"
+why = "Edit Links shows the workbooks a file depends on, but not where each link is used. References can sit in cell formulas, defined names, chart series and pivot table sources, and Microsoft's own documentation says there is no automatic way to find all of them."
+manual = "Press Ctrl+F, choose Options, set Look in to Formulas and Within to Workbook, and search for .xl to find formulas that point at other workbooks. Then check Formulas > Name Manager for names that refer to other files, and each chart's Select Data dialog for series that do."
+tool = "Link Migrator reads the file format directly and reports every link it finds across a whole folder, including defined names and chart series, with the file, the kind of link, the target and whether that target still exists."
+
+[[products.problems]]
+id = "word-opens-slowly"
+question = "Word documents open slowly after a file server move"
+why = "Many Word documents remember the template they were created from, stored as a full network path. When that server is gone, Word tries to reach it every time the document opens and waits for the network to time out before showing the file."
+manual = "Open the document, go to Developer > Document Template (or File > Options > Add-ins, then Manage: Templates), and replace the attached template path with the new location or with Normal. Save, and repeat for every affected document."
+tool = "Link Migrator lists the attached template of every Word document in a folder and rewrites the old server path to the new one along with every other link, so the documents open at normal speed again."
+
+[[products.problems]]
+id = "hyperlinks-old-server"
+question = "Hyperlinks in Word, Excel and PowerPoint still point to the old server"
+why = "A hyperlink to a file on a share stores that file's path. Moving the share doesn't update hyperlinks, so clicking them opens an error instead of the document."
+manual = "Right-click each hyperlink and choose Edit Link to type the new path. In Word you can press Alt+F9 to show field codes and use Find and Replace to change the old server name inside hyperlink fields, then press Alt+F9 again. Excel and PowerPoint have no equivalent, so their links are fixed one at a time."
+tool = "Link Migrator finds hyperlinks in cells, document bodies, headers, footers, footnotes, slides, layouts and notes, and rewrites them with the same mapping table as every other link."
+
+[[products.problems]]
+id = "sharepoint-migration-links"
+question = "Links broke after moving files from a file share to SharePoint"
+why = "Files on a share are linked by paths like S:\\Finance or \\\\server\\share. After a migration the same files live at web addresses such as https://company.sharepoint.com/sites/Finance/Shared Documents, so every old path is wrong even though the files still exist."
+manual = "Open each file from its new SharePoint location and repoint its links one by one: Change Source for workbook links, Edit Link for hyperlinks, and re-insert linked pictures. It works for a handful of files and becomes days of work across a department."
+tool = "Link Migrator maps a drive letter or share path to the SharePoint address in one rule and previews how many links each rule will change before anything is written."
+
+[[products.faq]]
+q = "Do I need Microsoft Office installed?"
+a = "No. Link Migrator reads and writes the Office file formats directly, so it runs on a PC without Office."
+
+[[products.faq]]
+q = "Does it change my original files?"
+a = "Not by default. Corrected copies go to a separate folder and each one is verified. An optional in-place mode writes a backup ZIP first."
+
+[[products.faq]]
+q = "What is free?"
+a = "Scanning folders, seeing every result on screen, previewing changes and exporting a report of the first 200 links are free forever. Applying changes needs a licence."
+
+[[products.faq]]
+q = "Which files does it handle?"
+a = ".xlsx, .xlsm, .docx, .docm, .pptx and .pptm. Legacy .xls, .doc and .ppt files and password-protected files are listed as skipped and left alone."
+
+[[products.faq]]
+q = "Does it upload my files anywhere?"
+a = "No. Files are processed on your PC. The only internet connection is activating and occasionally re-checking the licence."
+
+
 [[products]]
 key = "splitmark"
 name = "Splitmark"
 full_name = "Splitmark"
 one_liner = "Split one combined PDF of invoices, statements or payslips into separate files, named from their own text."
+seo_title = "Split a PDF into separate invoices, named from their own text"
+seo_description = "Split one combined PDF of invoices, statements or payslips into one file per document, each named from its invoice number or customer. Works offline on Windows. Free trial."
 site = "https://splitmark.aayush-c2684.workers.dev/"
 help = "https://splitmark.aayush-c2684.workers.dev/help"
 download = "https://github.com/Someone-anon-coder/splitmark-releases/releases/latest"
@@ -83,3 +152,58 @@ features = [
   "Accepts ordinary business PDFs, including ones with links, bookmarks or forms. The original PDF is never changed.",
 ]
 limits = "It reads the text layer of a PDF. Scanned pages (pictures of text) are not supported yet, and the app says so when it meets one."
+
+[[products.problems]]
+id = "split-pdf-into-invoices"
+question = "How do I split one PDF into separate invoices?"
+why = "Billing and accounting software often prints a whole run of invoices as one PDF. Splitting every page, or every fixed number of pages, only works when every invoice has the same length. As soon as one invoice runs to two pages, every file after it is cut in the wrong place."
+manual = "In Adobe Acrobat Pro, open Organize Pages and choose Split, which can split by number of pages, by file size or by top-level bookmarks. Free tools split every page or by page ranges you type. For invoices of different lengths, write down where each invoice starts and enter the ranges by hand."
+tool = "Splitmark finds where each invoice starts by reading its text, such as the point where the invoice number changes, so invoices of any length are split correctly, and you check every result before saving."
+
+[[products.problems]]
+id = "name-files-from-invoice-number"
+question = "How do I name split PDF files from the invoice number?"
+why = "Split tools name their output by page number, such as invoices_1.pdf, invoices_2.pdf. To file or email them, each one needs a real name, and the information is on the page, not in the file."
+manual = "Open each file, read the invoice number and customer, and rename the file in File Explorer. For a monthly run of 200 invoices this takes an hour or more, and typos are easy to miss."
+tool = "Splitmark names every file from text on its pages: the value after a label such as \"Invoice No:\", a pattern, or a box drawn around the number on a sample page. You can combine values, for example invoice number and customer, and duplicates or missing values are flagged before anything is saved."
+
+[[products.problems]]
+id = "split-payroll-pdf"
+question = "How do I split a payroll PDF into one payslip per employee?"
+why = "Payroll systems often produce one PDF for the whole company. Each payslip has to go to one person, payslips can run to more than one page, and the names and amounts are personal data that shouldn't be passed around more than necessary."
+manual = "Split the file by page ranges in a PDF editor, then rename each file after the employee it belongs to, checking every page so no one receives someone else's payslip."
+tool = "Splitmark starts a new file wherever the employee name or number changes, names each file from it, and shows every file with its pages and a thumbnail for checking. Everything runs on your PC, so payslips are never uploaded."
+
+[[products.problems]]
+id = "scanned-pdf-wont-split-by-text"
+question = "Why can't I split a scanned PDF by text?"
+why = "A scanned PDF is a set of pictures of pages. Tools that split or name files by text need a text layer, and a plain scan doesn't have one."
+manual = "Check by pressing Ctrl+F in your PDF reader and searching for a word you can see on the page. If nothing is found, there is no text layer. Run optical character recognition (OCR) first, for example Scan and OCR in Adobe Acrobat, then split the OCR'd file."
+tool = "Splitmark reads text-based PDFs, such as those exported from accounting or payroll software. It doesn't do OCR yet, and it tells you clearly when a PDF has no text to read."
+
+[[products.problems]]
+id = "online-pdf-splitter-privacy"
+question = "Is it safe to upload invoices to an online PDF splitter?"
+why = "Online PDF tools work by uploading your file to their servers. Invoices, statements and payslips contain names, addresses, bank details and amounts, which your clients or employees expect you to protect, and your company's data policy may not allow third-party uploads."
+manual = "Read the service's privacy policy and retention period before uploading, or use software that runs on your own computer, such as a desktop PDF editor."
+tool = "Splitmark runs entirely on your PC. PDFs are never uploaded; the only internet connection is the licence check."
+
+[[products.faq]]
+q = "Does Splitmark upload my PDFs?"
+a = "No. It runs on your PC, and your PDFs never leave it. The only internet connection is checking your licence key."
+
+[[products.faq]]
+q = "Will it change my original PDF?"
+a = "No. The original PDF is never changed, moved or deleted, and existing files are never replaced unless you say so."
+
+[[products.faq]]
+q = "What does the free trial include?"
+a = "Every feature, with up to 10 files saved per run."
+
+[[products.faq]]
+q = "Does it work with scanned PDFs?"
+a = "Not yet. It reads the text layer of a PDF, so scanned pages need OCR first. The app tells you when it meets a page without text."
+
+[[products.faq]]
+q = "Which Windows versions does it run on?"
+a = "Windows 10 (version 1809 or later) and Windows 11, 64-bit. No administrator rights are needed to install it."

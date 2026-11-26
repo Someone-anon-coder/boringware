@@ -306,47 +306,58 @@ def post_list(articles: list[Article], show_tag: bool = True) -> str:
     return '<ul class="posts">' + "".join(rows) + "</ul>"
 
 
-def product_card(p: dict) -> str:
-    return f"""<div class="card product-card">
-  <a href="/{p["key"]}/"><img class="shot" src="{p["image"]}" alt="{esc(p["image_alt"])}" loading="lazy" width="1280" height="800"></a>
-  <h3><a href="/{p["key"]}/">{esc(p["name"])}</a></h3>
-  <p>{esc(p["one_liner"])}</p>
-  <p class="meta">{esc(p["price_text"])}</p>
-  <p><a class="button" href="/{p["key"]}/">About {esc(p["name"])}</a><a class="button secondary" href="{esc(with_ref(p["site"]))}">Website</a></p>
-</div>"""
+def problem_link(p: dict, pr: dict) -> str:
+    return f'<a href="/{p["key"]}/#{pr["id"]}">{esc(pr["question"])}</a>'
+
+
+def tool_row(p: dict) -> str:
+    problems = "".join(f"<li>{problem_link(p, pr)}</li>" for pr in p.get("problems", []))
+    solves = f'<p class="label">Problems it solves</p><ul class="qlist">{problems}</ul>' if problems else ""
+    return f"""<article class="tool-row">
+  <a class="tool-shot" href="/{p["key"]}/"><img src="{p["image"]}" alt="{esc(p["image_alt"])}" loading="lazy" width="1280" height="800"></a>
+  <div>
+    <h3><a href="/{p["key"]}/">{esc(p["name"])}</a></h3>
+    <p>{esc(p["one_liner"])}</p>
+    <p class="meta">{esc(p["price_text"])}</p>
+    {solves}
+    <p><a class="button" href="/{p["key"]}/">About {esc(p["name"])}</a><a class="button secondary" href="{esc(with_ref(p["site"]))}">Website</a></p>
+  </div>
+</article>"""
 
 
 # ---------------------------------------------------------------- pages
 
 
 def page_home(articles: list[Article]) -> str:
-    cards = "\n".join(product_card(p) for p in PRODUCTS.values())
-    latest = post_list(articles[:5])
+    rows = "\n".join(tool_row(p) for p in PRODUCTS.values())
+    latest = post_list(articles[:6])
     latest_section = (
-        f'<h2 id="latest">Latest articles</h2>\n{latest}\n<p><a href="/blog/">All articles</a></p>' if latest else ""
+        f'<section><h2 id="latest">Latest articles</h2>\n{latest}\n<p><a href="/blog/">All articles</a></p></section>' if latest else ""
     )
-    body = f"""<h1>{esc(SITE["tagline"])}.</h1>
-<p class="lead">Each BoringWare tool does one tedious job properly. It runs on your Windows PC, so your files never leave it, and you can try it free before you pay once.</p>
-<p><a class="button" href="#tools">See the tools</a><a class="button secondary" href="/blog/">Read the articles</a></p>
+    body = f"""<section class="hero">
+  <div>
+    <h1>{esc(SITE["tagline"])}.</h1>
+    <p class="lead">Fix every broken Excel, Word and PowerPoint link after a file server move. Split one combined PDF into separate invoices, named from their own text. Each tool does one tedious job properly, on your own PC.</p>
+    <p><a class="button" href="#tools">See the tools</a><a class="button secondary" href="/blog/">Read the articles</a></p>
+  </div>
+  <ul class="promises">
+    <li><strong>Your files stay on your PC.</strong> No uploads. The only internet connection is the licence check.</li>
+    <li><strong>Originals are left alone.</strong> Results are written as new files; nothing is replaced without asking.</li>
+    <li><strong>Try free, pay once.</strong> Every tool can be tried on your own files before a one-time licence.</li>
+  </ul>
+</section>
 
-<h2 id="tools">Tools</h2>
-<div class="grid">
-{cards}
-</div>
+<section>
+<h2 id="tools">Tools, and the problems they solve</h2>
+{rows}
+</section>
 
 {latest_section}
-
-<h2>How every tool is built</h2>
-<div class="grid">
-  <div class="card"><h3>Your files stay on your PC</h3><p>No uploads and no cloud service. The only internet connection is the licence check.</p></div>
-  <div class="card"><h3>Originals are left alone</h3><p>Results are written as new files, and nothing is replaced without asking you first.</p></div>
-  <div class="card"><h3>No subscription needed</h3><p>A free way to try each tool on your own files, then a one-time licence.</p></div>
-</div>
 """
     website = {"@type": "WebSite", "@id": url("/#site"), "name": SITE["name"], "url": url("/"), "publisher": {"@id": url("/#org")}}
     return layout(
         path="/",
-        title=f"{SITE['name']}: {SITE['tagline'].lower()}",
+        title=SITE["seo_title"],
         full_title=True,
         description=SITE["description"],
         body=body,
@@ -354,43 +365,79 @@ def page_home(articles: list[Article]) -> str:
     )
 
 
+def problem_section(p: dict, pr: dict, articles_by_slug: dict[str, Article]) -> str:
+    more = ""
+    a = articles_by_slug.get(pr.get("article", ""))
+    if a:
+        more = f'<p><a href="{a.path}">Read the full guide: {esc(a.title)}</a></p>'
+    return f"""<section class="problem" aria-labelledby="{pr["id"]}">
+<h3 id="{pr["id"]}">{esc(pr["question"])}</h3>
+<p><strong>Why it happens.</strong> {esc(pr["why"])}</p>
+<p><strong>How to fix it by hand.</strong> {esc(pr["manual"])}</p>
+<p><strong>How {esc(p["name"])} does it.</strong> {esc(pr["tool"])}</p>
+{more}
+</section>"""
+
+
 def page_product(p: dict, articles: list[Article]) -> str:
     related = [a for a in articles if a.product == p["key"]]
+    by_slug = {a.slug: a for a in articles}
+    problems = p.get("problems", [])
+    faq = p.get("faq", [])
     crumbs, crumb_data = breadcrumbs([("Home", "/"), ("Tools", "/#tools"), (p["name"], f"/{p['key']}/")])
     store_btn = f'<a class="button secondary" href="{esc(p["store"])}">Microsoft Store</a>' if p.get("store") else ""
     features = "".join(f"<li>{esc(f)}</li>" for f in p["features"])
-    guides = (
-        f'<h2 id="articles">Articles about this job</h2>\n{post_list(related, show_tag=False)}' if related else ""
-    )
+    problem_html = "\n".join(problem_section(p, pr, by_slug) for pr in problems)
+    faq_html = "".join(f"<dt>{esc(f['q'])}</dt><dd>{esc(f['a'])}</dd>" for f in faq)
+    guides = f'<h2 id="articles">Articles</h2>\n{post_list(related, show_tag=False)}' if related else ""
     trademark = f'<p class="fine">{esc(p["trademark"])}</p>' if p.get("trademark") else ""
+    on_page = "".join(f'<li><a href="#{pr["id"]}">{esc(pr["question"])}</a></li>' for pr in problems)
+    on_page += '<li><a href="#features">What it does</a></li>' + ('<li><a href="#faq">Questions</a></li>' if faq else "")
+    on_page += '<li><a href="#articles">Articles</a></li>' if related else ""
     body = f"""{crumbs}
-<h1>{esc(p["full_name"])}</h1>
-<p class="lead">{esc(p["one_liner"])}</p>
-<p><a class="button" href="{esc(with_ref(p["site"]))}">Visit the {esc(p["name"])} website</a><a class="button secondary" href="{esc(p["download"])}">Download</a>{store_btn}</p>
-<p class="note">{esc(p["trial"])}.</p>
+<section class="hero">
+  <div>
+    <p class="eyebrow">{esc(p["full_name"])}</p>
+    <h1>{esc(p["seo_title"])}</h1>
+    <p class="lead">{esc(p["audience"])}</p>
+    <p><a class="button" href="{esc(with_ref(p["site"]))}">Visit the {esc(p["name"])} website</a><a class="button secondary" href="{esc(p["download"])}">Download</a>{store_btn}</p>
+    <p class="note">{esc(p["trial"])}. {esc(p["platform"])}</p>
+  </div>
+  <figure class="shot"><img src="{p["image"]}" alt="{esc(p["image_alt"])}" width="1280" height="800"></figure>
+</section>
 
-<figure class="shot"><img src="{p["image"]}" alt="{esc(p["image_alt"])}" width="1280" height="800" loading="lazy"></figure>
-
-<h2>The problem</h2>
+<div class="with-aside">
+<div class="main-col">
+<h2 id="problem">The problem</h2>
 <p>{esc(" ".join(p["problem"].split()))}</p>
 
-<h2>What it does</h2>
+<h2 id="problems">Common problems: why they happen and how to fix them</h2>
+{problem_html}
+
+<h2 id="features">What {esc(p["name"])} does</h2>
 <ul class="ticks">{features}</ul>
 <p class="note">{esc(p["limits"])}</p>
 
-<h2>Who it's for</h2>
-<p>{esc(p["audience"])}</p>
-
-<h2>At a glance</h2>
-<dl class="facts">
-  <dt>Price</dt><dd>{esc(p["price_text"])}</dd>
-  <dt>Try it</dt><dd>{esc(p["trial"])}</dd>
-  <dt>Runs on</dt><dd>{esc(p["platform"])}</dd>
-  <dt>Your files</dt><dd>Processed on your PC and never uploaded. The only internet connection is the licence check.</dd>
-  <dt>Help</dt><dd><a href="{esc(with_ref(p["help"]))}">{esc(p["name"])} help and FAQ</a></dd>
-</dl>
+{f'<h2 id="faq">Questions</h2><dl class="faq">{faq_html}</dl>' if faq else ""}
 {guides}
 {trademark}
+</div>
+<aside class="side">
+  <div class="card sticky">
+    <h2 class="side-h">At a glance</h2>
+    <dl class="facts">
+      <dt>Price</dt><dd>{esc(p["price_text"])}</dd>
+      <dt>Try it</dt><dd>{esc(p["trial"])}</dd>
+      <dt>Runs on</dt><dd>{esc(p["platform"])}</dd>
+      <dt>Your files</dt><dd>Processed on your PC, never uploaded.</dd>
+      <dt>Help</dt><dd><a href="{esc(with_ref(p["help"]))}">Help and FAQ</a></dd>
+    </dl>
+    <p><a class="button block" href="{esc(with_ref(p["site"]))}">Try {esc(p["name"])} free</a></p>
+    <h2 class="side-h">On this page</h2>
+    <ul class="side-nav">{on_page}</ul>
+  </div>
+</aside>
+</div>
 """
     app = {
         "@type": "SoftwareApplication",
@@ -404,15 +451,25 @@ def page_product(p: dict, articles: list[Article]) -> str:
         "offers": {"@type": "Offer", "price": p["price"], "priceCurrency": "USD"},
         "publisher": {"@id": url("/#org")},
     }
+    schema = [ORG, app, crumb_data]
+    if faq:
+        schema.append(
+            {
+                "@type": "FAQPage",
+                "mainEntity": [
+                    {"@type": "Question", "name": f["q"], "acceptedAnswer": {"@type": "Answer", "text": f["a"]}} for f in faq
+                ],
+            }
+        )
     return layout(
         path=f"/{p['key']}/",
-        title=f"{p['name']}: {p['one_liner'].rstrip('.')}",
-        full_title=len(p["one_liner"]) > 45,
-        description=f"{p['one_liner']} {p['trial']}. {p['platform']}",
+        title=f"{p['seo_title']} | {p['name']}",
+        full_title=True,
+        description=p["seo_description"],
         body=body,
         nav="tools",
         og_image=p.get("og_image", "/img/og-default.png"),
-        schema=[ORG, app, crumb_data],
+        schema=schema,
     )
 
 
@@ -467,18 +524,25 @@ def page_article(a: Article, articles: list[Article]) -> str:
         if a.unpublished
         else ""
     )
-    product_line = (
-        f' &middot; About <a href="/{a.product}/">{esc(PRODUCTS[a.product]["name"])}</a>' if a.product in PRODUCTS and a.toolbox == "full" else ""
-    )
+    side_tool = ""
+    if a.product in PRODUCTS:
+        p = PRODUCTS[a.product]
+        side_tool = (
+            f'<div class="card side-tool"><p class="label">Related tool</p><p><a href="/{p["key"]}/"><strong>{esc(p["name"])}</strong></a>: '
+            f'{esc(p["one_liner"])}</p></div>'
+        )
     body = f"""{crumbs}
-<article class="narrow">
+<div class="with-aside toc-first">
+<article class="main-col">
 {draft_banner}
 <h1>{esc(a.title)}</h1>
-<p class="byline">By {esc(SITE["author"])}, {esc(SITE["name"])} &middot; <time datetime="{a.date.isoformat()}">{nice_date(a.date)}</time>{updated} &middot; {reading_minutes(a.body_md)} min read{product_line}</p>
-{toc_html(a.toc)}
+<p class="byline">By {esc(SITE["author"])}, {esc(SITE["name"])} &middot; <time datetime="{a.date.isoformat()}">{nice_date(a.date)}</time>{updated} &middot; {reading_minutes(a.body_md)} min read</p>
+<p class="lead">{esc(a.description)}</p>
 {a.html}
 {toolbox(a)}
 </article>
+<aside class="side"><div class="sticky">{toc_html(a.toc)}{side_tool}</div></aside>
+</div>
 {related_html}
 """
     image = a.image or (PRODUCTS[a.product].get("og_image") if a.product in PRODUCTS else "") or "/img/og-default.png"
@@ -522,19 +586,28 @@ def page_blog(articles: list[Article]) -> str:
         sections.append(f'<h2 id="boringware">About {esc(SITE["name"])}</h2>{post_list(brand, show_tag=False)}')
     if not sections:
         sections.append(
-            "<p>The first articles are on the way: finding every external link hidden in Excel workbooks, and splitting one combined PDF into separate, named invoices.</p>"
-            '<p class="note">New articles also appear in the <a href="/feed.xml">feed</a>.</p>'
+            "<p>Full step-by-step guides are on the way. Until then, the quick answers below explain why each problem happens and how to fix it by hand.</p>"
         )
+    answers = "".join(
+        f'<div><h3>{esc(p["name"])}</h3><ul class="qlist">'
+        + "".join(f"<li>{problem_link(p, pr)}</li>" for pr in p.get("problems", []))
+        + "</ul></div>"
+        for p in PRODUCTS.values()
+    )
     crumbs, crumb_data = breadcrumbs([("Home", "/"), ("Articles", "/blog/")])
     body = f"""{crumbs}
-<h1>Articles</h1>
-<p class="lead">Step-by-step fixes for tedious office jobs: broken links after a file server move, combined PDFs that need splitting and naming, and similar chores. Each article shows the manual way first.</p>
+<h1>Articles: how to fix tedious office jobs</h1>
+<p class="lead">Why broken Excel, Word and PowerPoint links happen after a file server move, how to split a combined PDF into separate named files, and similar chores. Each guide shows the manual way first.</p>
 {"".join(sections)}
+<h2 id="quick-answers">Quick answers</h2>
+<div class="grid">{answers}</div>
+<p class="note">New articles also appear in the <a href="/feed.xml">feed</a>.</p>
 """
     return layout(
         path="/blog/",
-        title="Articles: fixes for tedious office jobs",
-        description="Step-by-step guides to tedious office jobs: fixing Excel, Word and PowerPoint links after a file server move, and splitting combined PDFs into named files.",
+        title="Articles: fix broken Excel links, split PDFs into named files",
+        full_title=True,
+        description="Guides to tedious office jobs: why Excel, Word and PowerPoint links break after a file server move and how to fix them, and how to split a combined PDF into named invoices.",
         body=body,
         nav="blog",
         schema=[ORG, crumb_data],
@@ -636,34 +709,40 @@ def feed(articles: list[Article]) -> str:
 
 
 def check_output() -> None:
-    """Every internal href/src must resolve to a built file; every <img> needs alt; same-page anchors must exist."""
+    """Every internal href/src must resolve to a built file, every #fragment must exist on its target page,
+    and every <img> needs alt text."""
     attr_re = re.compile(r'\s(href|src)="([^"]*)"')
+    id_re = re.compile(r'\sid="([^"]+)"')
+    ids_cache: dict[Path, set[str]] = {}
+
+    def ids_of(f: Path) -> set[str]:
+        if f not in ids_cache:
+            ids_cache[f] = set(id_re.findall(f.read_text(encoding="utf-8")))
+        return ids_cache[f]
+
     for page in DIST.rglob("*.html"):
         text = page.read_text(encoding="utf-8")
         rel = page.relative_to(DIST)
-        ids = set(re.findall(r'\sid="([^"]+)"', text))
         for img in re.findall(r"<img\b[^>]*>", text):
             if " alt=" not in img:
                 errors.append(f"dist/{rel}: <img> without alt: {img[:80]}")
         for _, target in attr_re.findall(text):
             target = html.unescape(target)
+            path, _, frag = target.partition("#")
+            path = path.split("?")[0]
             if target.startswith("#"):
-                if target[1:] and target[1:] not in ids:
-                    errors.append(f"dist/{rel}: anchor {target} not found on the page")
-                continue
-            if not target.startswith("/") or target.startswith("//"):
-                continue
-            path = target.split("#")[0].split("?")[0]
-            candidates = [DIST / path.lstrip("/")]
-            if path.endswith("/"):
-                candidates = [DIST / path.lstrip("/") / "index.html"]
+                found = page
+            elif target.startswith("/") and not target.startswith("//"):
+                stem = path.lstrip("/")
+                candidates = [DIST / stem / "index.html"] if path.endswith("/") else [DIST / stem, DIST / f"{stem}.html", DIST / stem / "index.html"]
+                found = next((c for c in candidates if c.is_file()), None)
+                if found is None:
+                    errors.append(f"dist/{rel}: broken internal link {target}")
+                    continue
             else:
-                candidates += [DIST / (path.lstrip("/") + ".html"), DIST / path.lstrip("/") / "index.html"]
-            if not any(c.is_file() for c in candidates):
-                errors.append(f"dist/{rel}: broken internal link {target}")
-            frag = target.partition("#")[2]
-            if frag and path in ("/", "") and frag not in set(re.findall(r'\sid="([^"]+)"', (DIST / "index.html").read_text(encoding="utf-8"))):
-                errors.append(f"dist/{rel}: anchor {target} not found on the home page")
+                continue
+            if frag and found.suffix == ".html" and frag not in ids_of(found):
+                errors.append(f"dist/{rel}: anchor #{frag} not found on {found.relative_to(DIST)}")
 
 
 # ---------------------------------------------------------------- main
