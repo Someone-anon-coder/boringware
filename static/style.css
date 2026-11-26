@@ -1,0 +1,130 @@
+/* BoringWare hub. Same tokens as the product sites, so the three feel like one family. */
+:root {
+  --bg:#fff; --fg:#1b1f24; --muted:#556; --accent:#1d4ed8; --accent-fg:#fff;
+  --card:#f4f6fa; --line:#d8dde6; --mark:#1c2028; --code:#eef1f6;
+  --tip-bg:#eef4ff; --tip-line:#9db7f5;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:#12151a; --fg:#e8eaee; --muted:#a3abb8; --accent:#7aa2ff; --accent-fg:#0b1020;
+    --card:#1b2028; --line:#2b3340; --mark:#343c4c; --code:#1f2530;
+    --tip-bg:#18213a; --tip-line:#3b5aa8;
+  }
+}
+* { box-sizing:border-box; }
+html { -webkit-text-size-adjust:100%; }
+body { margin:0; background:var(--bg); color:var(--fg); font:17px/1.6 system-ui, "Segoe UI", sans-serif; }
+img { max-width:100%; height:auto; }
+a { color:var(--accent); text-underline-offset:.15em; }
+a:focus-visible, .button:focus-visible, summary:focus-visible { outline:3px solid var(--accent); outline-offset:2px; border-radius:.25rem; }
+.skip { position:absolute; left:-999px; }
+.skip:focus { left:1rem; top:1rem; background:var(--bg); padding:.5rem 1rem; z-index:10; }
+
+/* Layout */
+.wrap { max-width:62rem; margin:0 auto; padding:0 1.25rem; }
+.narrow { max-width:44rem; }
+header.top { display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; padding:1rem 0; }
+.brand { display:inline-flex; align-items:center; gap:.55rem; color:var(--fg); text-decoration:none; font-weight:700; font-size:1.1rem; }
+.brand img { width:30px; height:30px; border-radius:6px; }
+header.top nav a { margin-left:1.1rem; color:var(--muted); text-decoration:none; font-weight:500; }
+header.top nav a:hover, header.top nav a[aria-current="page"] { color:var(--fg); }
+header.top nav a:first-child { margin-left:0; }
+main { padding-bottom:2rem; }
+footer.site { color:var(--muted); font-size:.9rem; border-top:1px solid var(--line); margin-top:3rem; padding:1.25rem 0 2rem; }
+footer.site nav a { margin-right:1rem; }
+footer.site p { margin:.4rem 0; max-width:44rem; }
+
+/* Type */
+h1 { font-size:2.2rem; line-height:1.2; margin:1.75rem 0 .75rem; letter-spacing:-.01em; }
+h2 { font-size:1.4rem; line-height:1.3; margin:2.4rem 0 .6rem; }
+h3 { font-size:1.12rem; margin:1.6rem 0 .4rem; }
+p, li { max-width:42rem; }
+.lead { font-size:1.18rem; color:var(--muted); max-width:40rem; }
+.note, .fine { color:var(--muted); font-size:.93rem; }
+code { font:.9em/1.4 ui-monospace, Consolas, monospace; background:var(--code); padding:.1em .3em; border-radius:.25rem; overflow-wrap:anywhere; }
+pre { background:var(--code); padding:1rem; border-radius:.5rem; overflow-x:auto; max-width:42rem; }
+pre code { background:none; padding:0; }
+kbd { font:.85em ui-monospace, Consolas, monospace; border:1px solid var(--line); border-bottom-width:2px; border-radius:.3rem; padding:.05em .35em; background:var(--card); }
+blockquote { margin:1rem 0; padding:.25rem 1rem; border-left:4px solid var(--line); color:var(--muted); }
+hr { border:0; border-top:1px solid var(--line); margin:2rem 0; }
+table { border-collapse:collapse; width:100%; margin:1rem 0; font-size:.95rem; }
+th, td { border:1px solid var(--line); padding:.45rem .6rem; text-align:left; vertical-align:top; }
+th { background:var(--card); }
+.table-scroll { overflow-x:auto; }
+
+/* Buttons and cards */
+.button { display:inline-block; padding:.65rem 1.15rem; border-radius:.5rem; background:var(--accent); color:var(--accent-fg);
+  text-decoration:none; font-weight:650; margin:.25rem .5rem .25rem 0; border:2px solid var(--accent); }
+.button.secondary { background:transparent; color:var(--accent); }
+.card { background:var(--card); border:1px solid var(--line); border-radius:.75rem; padding:1.1rem 1.25rem; }
+.grid { display:grid; gap:1.1rem; grid-template-columns:repeat(auto-fit, minmax(17rem, 1fr)); margin:1rem 0; }
+.product-card h3 { margin:.1rem 0 .35rem; font-size:1.25rem; }
+.product-card h3 a { color:var(--fg); text-decoration:none; }
+.product-card h3 a:hover { text-decoration:underline; }
+.product-card p { margin:.4rem 0; }
+.product-card .meta { color:var(--muted); font-size:.92rem; }
+.product-card .shot { border:1px solid var(--line); border-radius:.5rem; display:block; margin:.25rem 0 .75rem; aspect-ratio:16/10; object-fit:cover; object-position:left top; width:100%; }
+.ticks { padding-left:1.2rem; }
+.ticks li { margin:.3rem 0; }
+
+/* Facts table on product pages */
+dl.facts { display:grid; grid-template-columns:max-content 1fr; gap:.45rem 1.25rem; margin:1rem 0; max-width:44rem; }
+dl.facts dt { font-weight:650; }
+dl.facts dd { margin:0; }
+@media (max-width:34rem) { dl.facts { grid-template-columns:1fr; } dl.facts dd { margin-bottom:.5rem; } }
+figure.shot { margin:1.25rem 0; }
+figure.shot img { border:1px solid var(--line); border-radius:.5rem; display:block; }
+figure.shot figcaption { color:var(--muted); font-size:.9rem; margin-top:.4rem; }
+
+/* Article lists */
+.posts { list-style:none; padding:0; margin:1rem 0; }
+.posts li { padding:.9rem 0; border-bottom:1px solid var(--line); max-width:44rem; }
+.posts li:last-child { border-bottom:0; }
+.posts a.title { font-weight:650; font-size:1.08rem; text-decoration:none; color:var(--fg); }
+.posts a.title:hover { text-decoration:underline; color:var(--accent); }
+.posts p { margin:.25rem 0 0; color:var(--muted); font-size:.95rem; }
+.posts .meta { font-size:.85rem; color:var(--muted); }
+.tag { display:inline-block; font-size:.78rem; font-weight:600; padding:.05rem .5rem; border-radius:1rem; border:1px solid var(--line); color:var(--muted); margin-right:.35rem; }
+
+/* Articles */
+.crumbs { font-size:.88rem; color:var(--muted); margin-top:1rem; }
+.crumbs a { color:var(--muted); }
+.crumbs ol { list-style:none; padding:0; margin:0; display:flex; flex-wrap:wrap; gap:.35rem; }
+.crumbs li:not(:last-child)::after { content:"/"; margin-left:.35rem; }
+article .byline { color:var(--muted); font-size:.92rem; margin:-.25rem 0 1.25rem; }
+article .toc { background:var(--card); border:1px solid var(--line); border-radius:.6rem; padding:.6rem 1rem; margin:1.25rem 0; max-width:44rem; }
+article .toc summary { cursor:pointer; font-weight:650; }
+article .toc ul { margin:.5rem 0 .25rem; padding-left:1.2rem; }
+article .toc ul ul { margin:0; }
+article h2 .headerlink, article h3 .headerlink { opacity:0; margin-left:.35rem; text-decoration:none; font-weight:400; }
+article h2:hover .headerlink, article h3:hover .headerlink, .headerlink:focus { opacity:.6; }
+article img { border:1px solid var(--line); border-radius:.5rem; }
+.admonition { background:var(--tip-bg); border-left:4px solid var(--tip-line); border-radius:.4rem; padding:.6rem 1rem; margin:1.25rem 0; max-width:44rem; }
+.admonition-title { font-weight:700; margin:.2rem 0 .3rem; }
+.admonition p { margin:.3rem 0; }
+.admonition.warning { border-left-color:#d08a00; }
+.toolbox { border:2px solid var(--accent); border-radius:.75rem; padding:1rem 1.25rem; margin:2.5rem 0 1.5rem; max-width:44rem; }
+.toolbox h2 { margin:0 0 .4rem; font-size:1.15rem; }
+.toolbox p { margin:.4rem 0; }
+.toolbox .disclose { color:var(--muted); font-size:.88rem; }
+
+/* /links (opened from Instagram and Facebook bios, so mostly phones) */
+.links-page { max-width:30rem; margin:0 auto; text-align:center; padding-top:1.5rem; }
+.links-page .logo { width:84px; height:84px; border-radius:18px; }
+.links-page h1 { font-size:1.6rem; margin:.75rem 0 .25rem; }
+.links-page .stack { display:flex; flex-direction:column; gap:.7rem; margin:1.5rem 0; }
+.links-page .stack a { display:block; padding:.85rem 1rem; border-radius:.65rem; border:1px solid var(--line); background:var(--card);
+  color:var(--fg); text-decoration:none; font-weight:600; }
+.links-page .stack a small { display:block; font-weight:400; color:var(--muted); font-size:.85rem; margin-top:.15rem; }
+.links-page .stack a.primary { background:var(--accent); border-color:var(--accent); color:var(--accent-fg); }
+.links-page .stack a.primary small { color:var(--accent-fg); opacity:.85; }
+.links-page h2 { font-size:.95rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:1.75rem 0 .25rem; }
+
+@media (max-width:34rem) {
+  h1 { font-size:1.75rem; }
+  header.top nav a { margin-left:.8rem; }
+}
+@media print {
+  header.top nav, footer.site nav, .toolbox, .related, .skip { display:none; }
+  a { color:inherit; }
+}

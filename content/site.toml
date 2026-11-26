@@ -1,0 +1,85 @@
+# Everything that describes the hub and the products lives here. build.py reads it.
+# Product facts must match each product's own site; check them there before changing.
+
+[site]
+name = "BoringWare"
+url = "https://boringware.pages.dev"   # canonical origin, no trailing slash
+tagline = "Small Windows tools for boring office jobs"
+description = "BoringWare makes small Windows tools for boring office jobs: fixing broken links after a file server move, splitting combined PDFs into named files. One-time price, and your files stay on your PC."
+author = "Aayush Choudhary"
+email = "boringware@outlook.com"
+lang = "en"
+# Paste the content value of Google's <meta name="google-site-verification"> here (Search Console,
+# URL-prefix property). Leave empty until then. Bing can import the property from Google.
+google_site_verification = ""
+# Every link from the hub to a product site gets this ?ref= value (marketing plan, ground rule 7).
+ref = "hub"
+
+# Order here = order on the home page and /links.
+[[products]]
+key = "link-migrator"          # also the hub URL: /link-migrator/  and the `product` value in articles
+name = "Link Migrator"
+full_name = "Link Migrator for Excel, Word and PowerPoint"
+one_liner = "Fix every broken Excel, Word and PowerPoint link after a file server or SharePoint move."
+site = "https://office-link-migrator.aayush-c2684.workers.dev/"
+help = "https://office-link-migrator.aayush-c2684.workers.dev/help.html"
+download = "https://github.com/office-link-migrator/office-link-migrator-releases/releases/latest"
+store = "https://apps.microsoft.com/detail/9NS6HLT4ZPGS"
+price_text = "Scanning is free. $49 one-time to apply changes (2 PCs); $149 a year for technicians."
+price = "49"                    # lowest paid price, USD, for structured data
+trial = "Free forever for scanning and previewing changes"
+platform = "Windows 10 and 11, 64-bit. No Office or Python needed."
+category = "UtilitiesApplication"
+image = "/img/link-migrator-scan.png"
+image_alt = "Link Migrator's Scan tab: 48 files scanned, 147 links found, each listed with its file, kind, target, status and whether it can be rewritten."
+og_image = "/img/link-migrator-og.png"
+audience = "IT admins, MSPs and finance teams moving a file server or moving shares to SharePoint."
+trademark = "Link Migrator is not affiliated with Microsoft. Microsoft, Excel, Word, PowerPoint and SharePoint are trademarks of the Microsoft group of companies."
+problem = """
+When a file server is renamed, retired or moved to SharePoint, every workbook link, hyperlink,
+linked picture and template path that pointed at the old location breaks at once. Excel's own
+Workbook Links pane handles one workbook at a time and ignores Word and PowerPoint entirely.
+"""
+features = [
+  "Scans whole folders of .xlsx, .xlsm, .docx, .docm, .pptx and .pptm files and lists every external link, including the ones hidden in defined names and charts.",
+  "Checks whether each link's target still exists, with a short timeout so a dead server never hangs the scan.",
+  "One mapping table, old location to new: UNC paths, mapped drives and SharePoint addresses.",
+  "Previews the exact number of changes per rule and per file before anything is written.",
+  "Writes corrected copies to a separate folder and verifies each one. Originals are not touched.",
+  "A command line with exit codes for RMM tools and batch jobs.",
+]
+limits = "Legacy .xls, .doc and .ppt files and password-protected files are listed as skipped and left alone."
+
+[[products]]
+key = "splitmark"
+name = "Splitmark"
+full_name = "Splitmark"
+one_liner = "Split one combined PDF of invoices, statements or payslips into separate files, named from their own text."
+site = "https://splitmark.aayush-c2684.workers.dev/"
+help = "https://splitmark.aayush-c2684.workers.dev/help"
+download = "https://github.com/Someone-anon-coder/splitmark-releases/releases/latest"
+store = ""                      # fill in once the Microsoft Store certifies it
+price_text = "$49 one-time, for up to 2 PCs. No subscription."
+price = "49"
+trial = "Free trial with every feature, up to 10 files per run"
+platform = "Windows 10 (1809 or later) and 11, 64-bit. No administrator rights needed."
+category = "BusinessApplication"
+image = "/img/splitmark-review.png"
+image_alt = "Splitmark's Review step: 20 invoices found in one PDF, each with its pages, a thumbnail, its new file name such as INV-10001_Birch Foods 2, the values read and an OK status."
+og_image = "/img/splitmark-og.png"
+audience = "Bookkeepers, accounts and payroll teams, and small businesses that get one big PDF from their billing, bank or payroll system."
+trademark = ""
+problem = """
+Accounting software, banks and payroll systems often export a single PDF with dozens or hundreds of
+documents stuck together. Splitting it by page ranges works until the documents have different
+lengths, and then every file still has to be renamed by hand.
+"""
+features = [
+  "Finds where each document starts, so invoices of different lengths split correctly.",
+  "Names every file from text on its pages: type the label before a value (such as \"Invoice No:\"), give a pattern, or draw a box on a sample page.",
+  "A review list with every file's pages, a thumbnail and its name. Missing values and duplicate names are flagged before saving.",
+  "Merge, split, skip or rename any document with a click.",
+  "Saves one PDF per document, plus a CSV log and a manifest of what was written.",
+  "Accepts ordinary business PDFs, including ones with links, bookmarks or forms. The original PDF is never changed.",
+]
+limits = "It reads the text layer of a PDF. Scanned pages (pictures of text) are not supported yet, and the app says so when it meets one."
