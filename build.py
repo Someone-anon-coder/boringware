@@ -329,7 +329,7 @@ def tool_card(p: dict) -> str:
     return f"""<article class="tool-card">
   <a class="frame" href="/{p["key"]}/" tabindex="-1"><img src="{p["image"]}" alt="{esc(p["image_alt"])}" loading="lazy" width="1280" height="800"></a>
   <div class="tool-body">
-    <h3><a href="/{p["key"]}/">{esc(p["name"])}</a></h3>
+    <h3><a href="/{p["key"]}/"><img class="app-icon" src="{p["icon"]}" alt="" width="36" height="36">{esc(p["name"])}</a></h3>
     <p>{esc(p["one_liner"])}</p>
     <p class="note">{esc(p["price_text"])}</p>
     {solves}
@@ -415,7 +415,7 @@ def page_product(p: dict, articles: list[Article]) -> str:
     body = f"""{crumbs}
 <section class="hero">
   <div>
-    <p class="label">{esc(p["full_name"])}</p>
+    <p class="label product-label"><img class="app-icon" src="{p["icon"]}" alt="" width="28" height="28">{esc(p["full_name"])}</p>
     <h1>{esc(p["seo_title"])}</h1>
     <p class="lead">{esc(" ".join(p["problem"].split()))}</p>
     <p class="actions">{try_button(p)}<a class="button secondary" href="{esc(p["download"])}">Download</a></p>
@@ -655,16 +655,50 @@ def page_links(articles: list[Article]) -> str:
     )
 
 
+def tool_tiles() -> str:
+    """`<!-- tools -->` in a Markdown page: one tile per product, with its app icon."""
+    tiles = "".join(
+        f'<a class="tile" href="/{p["key"]}/"><img src="{p["icon"]}" alt="" width="48" height="48">'
+        f'<span><strong>{esc(p["name"])}</strong>{esc(p["one_liner"])}</span></a>'
+        for p in PRODUCTS.values()
+    )
+    return f'<div class="tiles">{tiles}</div>'
+
+
+def product_privacy() -> str:
+    """`<!-- product-privacy -->` in a Markdown page: each product's own privacy policy."""
+    tiles = "".join(
+        f'<a class="tile" href="{esc(with_ref(p["privacy"]))}"><img src="{p["icon"]}" alt="" width="48" height="48">'
+        f'<span><strong>{esc(p["name"])} privacy policy</strong>What the app sends for its licence check, and what is kept after you buy.</span></a>'
+        for p in PRODUCTS.values()
+    )
+    return f'<div class="tiles">{tiles}</div>'
+
+
+PLACEHOLDERS = {"<!-- tools -->": tool_tiles, "<!-- product-privacy -->": product_privacy}
+
+
 def page_markdown(src: Path) -> tuple[str, str]:
+    """Plain pages (About, Privacy). Optional header fields: lead, icon, updated."""
     meta, body = split_front_matter(src)
     path = meta["path"]
+    for marker, make in PLACEHOLDERS.items():
+        body = body.replace(marker, make())  # raw HTML blocks pass through Markdown unchanged
     content, _ = render_md(body)
     crumbs, crumb_data = breadcrumbs([("Home", "/"), (meta["title"], path)])
+    icon = f'<img class="page-icon" src="{meta["icon"]}" alt="" width="64" height="64">' if meta.get("icon") else ""
+    lead = f'<p class="lead">{esc(meta["lead"])}</p>' if meta.get("lead") else ""
+    updated = meta.get("updated")
+    stamp = f'<p class="note">Last updated <time datetime="{updated.isoformat()}">{nice_date(updated)}</time>.</p>' if updated else ""
     page = layout(
         path=path,
         title=meta["title"],
         description=meta["description"],
-        body=f'{crumbs}\n<div class="narrow">\n<h1>{esc(meta["title"])}</h1>\n{tag_product_links(content)}\n</div>',
+        body=f"""{crumbs}
+<div class="page narrow">
+<header class="page-head">{icon}<div><h1>{esc(meta["title"])}</h1>{lead}{stamp}</div></header>
+{tag_product_links(content)}
+</div>""",
         nav=meta.get("nav", ""),
         schema=[ORG, crumb_data],
     )

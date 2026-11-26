@@ -138,6 +138,32 @@ figure.shot { margin:1.25rem 0; }
 figure.shot img { border:1px solid var(--line); border-radius:var(--radius); display:block; }
 figure.shot figcaption { color:var(--muted); font-size:.9rem; margin-top:.4rem; }
 
+/* ---------- App icons */
+.app-icon { display:inline-block; vertical-align:middle; border-radius:22%; }
+.tool-body h3 a { display:inline-flex; align-items:center; gap:.65rem; }
+.product-label { display:flex; align-items:center; gap:.55rem; }
+
+/* ---------- Plain pages (About, Privacy) */
+.page { max-width:46rem; }
+.page-head { display:flex; align-items:center; gap:1.25rem; margin:1.75rem 0 1.5rem; }
+.page-head h1 { margin:0 0 .25rem; }
+.page-head .lead { margin:.25rem 0 0; }
+.page-head .note { margin:.4rem 0 0; }
+.page-icon { flex:none; width:64px; height:64px; border-radius:14px; }
+.page > ul:not([class]) li { margin:.4rem 0; }
+dl.steps.rules { grid-template-columns:13rem minmax(0,1fr); gap:.85rem 1.5rem; }
+dl.steps.rules dt { color:var(--fg); font-size:1rem; padding-top:0; }
+.principles { list-style:none; padding:0; margin:.5rem 0 1.25rem; display:grid; gap:1rem; grid-template-columns:repeat(auto-fit, minmax(13rem, 1fr)); }
+.principles li { background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:.9rem 1.05rem;
+  color:var(--muted); font-size:.93rem; line-height:1.5; margin:0; }
+.principles strong { display:block; color:var(--fg); font-size:1rem; margin-bottom:.25rem; }
+.tiles { display:grid; gap:1rem; grid-template-columns:repeat(auto-fit, minmax(17rem, 1fr)); margin:1.25rem 0; }
+.tile { display:flex; gap:.9rem; align-items:flex-start; padding:1rem 1.1rem; border:1px solid var(--line); border-radius:var(--radius);
+  color:var(--muted); text-decoration:none; font-size:.92rem; line-height:1.45; }
+.tile:hover { border-color:var(--accent); background:var(--tip-bg); }
+.tile img { flex:none; border-radius:22%; }
+.tile strong { display:block; color:var(--fg); font-size:1.02rem; margin-bottom:.2rem; }
+
 /* ---------- Article lists */
 .posts { list-style:none; padding:0; margin:1rem 0; max-width:var(--read); }
 .posts li { padding:1rem 0; border-top:1px solid var(--line); }
@@ -185,7 +211,9 @@ article img { border:1px solid var(--line); border-radius:var(--radius); }
   h2 { font-size:1.3rem; }
   .promises { grid-template-columns:1fr; gap:1rem; }
   header.top nav { gap:1.1rem; }
-  dl.steps { grid-template-columns:1fr; gap:.15rem; }
+  dl.steps, dl.steps.rules { grid-template-columns:1fr; gap:.15rem; }
+  .page-head { align-items:flex-start; gap:.9rem; }
+  .page-icon { width:48px; height:48px; border-radius:11px; margin-top:.35rem; }
   dl.steps dd { margin-bottom:.6rem; }
   .problem .more { margin-left:0; }
 }

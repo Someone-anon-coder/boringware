@@ -2,12 +2,20 @@
 title = "Privacy"
 description = "What the BoringWare website records about visits: no cookies, no tracking across sites, and anonymous page view counts from Cloudflare Web Analytics."
 path = "/privacy/"
+lead = "This website sets no cookies and keeps nothing about you as a person. Each BoringWare app has its own privacy policy, linked below."
+updated = 2026-11-26
 +++
 
-This policy covers this website (boringware.pages.dev). Each BoringWare tool has its own privacy
-policy on its own website, which covers the app and its licence check.
+<p class="label">The short version</p>
+<ul class="principles">
+<li><strong>No cookies</strong>No cookies or local storage, and no accounts, forms or comments.</li>
+<li><strong>Totals only</strong>Page views are counted without cookies. We see totals, never individual people.</li>
+<li><strong>Your files stay on your PC</strong>The apps never upload your files. Their only connection is the licence check.</li>
+</ul>
 
 ## What this site records
+
+This policy covers this website (boringware.pages.dev).
 
 - **No cookies** and no local storage. There are no accounts, forms or comments here.
 - **Visit counts.** This site uses Cloudflare Web Analytics to count page views, the page a
@@ -23,6 +31,14 @@ policy on its own website, which covers the app and its licence check.
 The site is hosted by Cloudflare Pages. Like any web host, Cloudflare processes your IP address
 to deliver pages and protect against abuse. See
 [Cloudflare's privacy policy](https://www.cloudflare.com/privacypolicy/).
+
+## The apps
+
+Each app has its own privacy policy on its own website, covering the app, its licence check and
+what is kept after you buy. In short: your files never leave your PC, and the only internet
+connection each app makes is to activate and occasionally re-check its licence.
+
+<!-- product-privacy -->
 
 ## Contact
 
