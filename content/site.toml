@@ -20,7 +20,11 @@ email = "boringware@outlook.com"
 lang = "en"
 # Paste the content value of Google's <meta name="google-site-verification"> here (Search Console,
 # URL-prefix property). Leave empty until then. Bing can import the property from Google.
-google_site_verification = ""
+google_site_verification = "r_3uMUiGZRTP1hxruApkG7qDFu5cveKVRo7IYMHMF6U"
+# Optional: the content value of Bing's <meta name="msvalidate.01">. Not needed if Bing Webmaster
+# Tools imports the site from Search Console. The product sites are verified the same way, with
+# no analytics (their privacy policies).
+bing_site_verification = ""
 # Every link from the hub to a product site gets this ?ref= value (marketing plan, ground rule 7).
 ref = "hub"
 

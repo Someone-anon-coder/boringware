@@ -216,6 +216,7 @@ def layout(
 ) -> str:
     page_title = title if full_title else f"{title} | {SITE['name']}"
     gsv = SITE.get("google_site_verification", "")
+    bsv = SITE.get("bing_site_verification", "")
     head = [
         "<!doctype html>",
         f'<html lang="{SITE["lang"]}">',
@@ -227,6 +228,7 @@ def layout(
         f'<link rel="canonical" href="{esc(url(path))}">',
         '<meta name="robots" content="noindex">' if noindex else "",
         f'<meta name="google-site-verification" content="{esc(gsv)}">' if gsv else "",
+        f'<meta name="msvalidate.01" content="{esc(bsv)}">' if bsv else "",
         f'<meta property="og:site_name" content="{esc(SITE["name"])}">',
         f'<meta property="og:type" content="{og_type}">',
         f'<meta property="og:title" content="{esc(title)}">',
@@ -472,6 +474,7 @@ def page_product(p: dict, articles: list[Article]) -> str:
         "operatingSystem": "Windows 10, Windows 11",
         "url": p["site"],
         "downloadUrl": p["download"],
+        "sameAs": [x for x in (p["site"], p.get("store")) if x],
         "image": url(p["image"]),
         "offers": {"@type": "Offer", "price": p["price"], "priceCurrency": "USD"},
         "publisher": {"@id": url("/#org")},

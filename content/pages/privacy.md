@@ -3,7 +3,7 @@ title = "Privacy"
 description = "What the BoringWare website records about visits: no cookies, no tracking across sites, and anonymous page view counts from Cloudflare Web Analytics."
 path = "/privacy/"
 lead = "This website sets no cookies and keeps nothing about you as a person. Each BoringWare app has its own privacy policy, linked below."
-updated = 2026-11-26
+updated = 2026-11-27
 +++
 
 <p class="label">The short version</p>
@@ -25,9 +25,13 @@ This policy covers this website (boringware.pages.dev).
   visitor came from, and broad details such as country and device type. Cloudflare says it does
   not use cookies or local storage for this and does not fingerprint visitors. We see totals only,
   never individual people.
-- **Links with `?ref=`.** Some links to this site and to the tools' websites end in a tag such as
-  `?ref=hub` or `?ref=yt`. It tells us which channel a visit came from (this site, YouTube and so
-  on), and nothing about who you are.
+- **Links with `?ref=`.** Some links to this site end in a tag such as `?ref=yt`. It tells us
+  which channel a visit came from (YouTube, a Quora answer and so on), and nothing about who you
+  are. Links from this site to the tools' websites carry `?ref=hub`, but those websites have no
+  analytics, so nothing there records it.
+- **Search engines.** We use Google Search Console and Bing Webmaster Tools for this site, as for the tools' websites.
+  They report how the site appears in search results (searches, impressions, clicks) and add
+  nothing to the pages you load.
 
 ## Hosting
 
